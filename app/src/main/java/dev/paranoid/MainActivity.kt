@@ -11,6 +11,7 @@ import androidx.core.graphics.set
 import androidx.core.view.children
 import androidx.core.view.get
 import androidx.core.view.marginLeft
+import androidx.core.view.setPadding
 
 class TabLayout(c: Context): LinearLayout(c) {
     lateinit var tabs: LinearLayout
@@ -52,11 +53,9 @@ class ChoiceView(c: Context): androidx.appcompat.widget.AppCompatTextView(c) {
     }
 
     fun freshBitmap() {
-        for (i in 0..(bitmap.width - 1)) {
-            for (j in 0..(bitmap.height - 1)) {
-                bitmap[i, j] = colors[index]
-            }
-        }
+        val pixels = IntArray(bitmap.width * bitmap.height)
+        pixels.fill(colors[index], 0, pixels.lastIndex)
+        bitmap = Bitmap.createBitmap(pixels, bitmap.width, bitmap.height, Bitmap.Config.ARGB_8888)
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
@@ -90,10 +89,18 @@ class MainChoice(c: Context): LinearLayout(c) {
         orientation = VERTICAL
         addView(ChoiceView(c), LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f))
         addView(LinearLayout(c).apply {
-            addView(Button(c).apply { text = "no" })
+            addView(object: TextView(c) {
+                override fun onDraw(canvas: Canvas?) {
+                    canvas?.apply {
+                        drawText("GG", 0F, 0F, Paint().apply { color = Color.RED })
+                        drawCircle(width/2F, height/2F, height/3F, Paint().apply { color = Color.BLUE })
+                    }
+                    super.onDraw(canvas)
+                }
+            }.apply { text = "no"; setTextColor(Color.WHITE); setPadding(10) })
             addView(Button(c).apply { text = "yes" })
-            setPadding(290, 0, 0, 30)
-        }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT))
+            gravity = Gravity.CENTER
+        }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
     }
 }
 
