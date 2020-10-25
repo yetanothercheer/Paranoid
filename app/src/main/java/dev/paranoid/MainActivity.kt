@@ -124,7 +124,7 @@ class Chat(c: Context): LinearLayout(c) {
     }
 }
 
-class Profile(c: Context): LinearLayout(c) {
+class ProfileAvoidConflict(c: Context): LinearLayout(c) {
     init {
         addView(TextView(c).apply { text = "Not implemented!" })
     }
@@ -165,7 +165,7 @@ class MainActivity : AppCompatActivity() {
                         scaleY = 0.5F
                     }
                 )
-            }, Profile(context))
+            }, ProfileAvoidConflict(context))
         })
 
         (window.decorView as FrameLayout).addView(TextView(this).apply {
