@@ -2,4 +2,4 @@
 
 ## UI at very beginning
 
-![UI](./screenshot.png)
+<img src="./screenshot.png" width="540">
