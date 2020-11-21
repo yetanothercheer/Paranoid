@@ -1,0 +1,7 @@
+{
+  "name": "paranoid",
+  "dependencies": {
+    "@zeit/fun": "^0.11.2",
+    "vercel": "^21.0.0"
+  }
+}
