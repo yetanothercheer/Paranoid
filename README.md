@@ -1,5 +1,3 @@
 # Paranoid
 
-## UI at very beginning
-
-<img src="./screenshot.png" width="540">
+Yet another Tinder.
