@@ -28,6 +28,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.viewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
@@ -38,7 +39,10 @@ import com.github.kittinunf.fuel.gson.responseObject
 import com.github.kittinunf.result.getOrElse
 import com.github.kittinunf.result.getOrNull
 import kotlinx.coroutines.*
-import java.lang.Exception
+
+val handler = CoroutineExceptionHandler { _, exception ->
+    Log.e("Coroutine Exception", "${exception.message} on ${Thread.currentThread()}")
+}
 
 data class TinderProfile(
     var id: String,
@@ -50,7 +54,7 @@ data class TinderProfile(
 
 class TinderViewModel : ViewModel() {
 
-    val myProfile = liveData {
+    val myProfile = liveData(handler) {
         while (true) {
             if (id != -1) {
                 emit(getProfile(id))
@@ -59,7 +63,7 @@ class TinderViewModel : ViewModel() {
         }
     }
 
-    val matches = liveData {
+    val matches = liveData(handler) {
         while (true) {
             if (id != -1) {
                 emit((myProfile.value?.likes ?: listOf()).filter {
@@ -70,33 +74,27 @@ class TinderViewModel : ViewModel() {
         }
     }
 
-    val allThePeople = liveData {
+    val allThePeople = liveData(handler) {
         emit((1..10).map { getProfile(-1) }.filter { it.id.toInt() != id }.distinctBy { it.id })
     }
 
     var id: Int = -1
 
     init {
-        viewModelScope.launch(Dispatchers.IO) {
-            CoroutineExceptionHandler { _, exception ->
-                println("CoroutineExceptionHandler got $exception with suppressed ${exception.suppressed.contentToString()}")
-            }
-            runBlocking {
-                while (true) {
-                    register("x")
-                    val r = register("x")
-                    if (r != null) {
-                        id = r.id.toInt()
-                        break
-                    }
+        viewModelScope.launch(Dispatchers.IO + handler) {
+            while (true) {
+                register("x")
+                val r = register("x")
+                if (r != null) {
+                    id = r.id.toInt()
+                    break
                 }
-                Log.e("ViewModel", "ID: $id")
             }
-
+            Log.e("ViewModel", "ID: $id")
         }
     }
 
-    private suspend fun register(name: String): TinderProfile? = withContext(Dispatchers.IO) {
+    private suspend fun register(name: String): TinderProfile? = withContext(Dispatchers.IO + handler) {
         try {
             val (_, _, result) = Fuel.post(
                 "https://paranoid.yetanothercheer.vercel.app/api",
@@ -112,7 +110,7 @@ class TinderViewModel : ViewModel() {
         }
     }
 
-    private suspend fun getProfile(id: Int = -1): TinderProfile = withContext(Dispatchers.IO) {
+    private suspend fun getProfile(id: Int = -1): TinderProfile = withContext(Dispatchers.IO + handler) {
         when (id) {
             -1 -> Fuel.post(
                 "https://paranoid.yetanothercheer.vercel.app/api",
@@ -126,7 +124,7 @@ class TinderViewModel : ViewModel() {
     }
 
     fun like(_id: Int) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(Dispatchers.IO + handler) {
             Log.e("Like", "$id -> $_id")
             kotlin.runCatching {
                 Fuel.post(
@@ -139,12 +137,10 @@ class TinderViewModel : ViewModel() {
                 ).response().third.getOrElse { }
 
             }
-
-
         }
     }
 
-    private suspend fun check(_id: Int): Boolean = withContext(Dispatchers.IO) {
+    private suspend fun check(_id: Int): Boolean = withContext(Dispatchers.IO + handler) {
         Fuel.post(
             "https://paranoid.yetanothercheer.vercel.app/api",
             listOf(Pair("f", "check"), Pair("a", id), Pair("b", _id))
@@ -155,15 +151,9 @@ class TinderViewModel : ViewModel() {
 }
 
 class Main : AppCompatActivity() {
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val vm: TinderViewModel by viewModels()
-
-        Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
-            Log.e("Main", "Uncaught Exception Handler")
-        }
 
         setContent { UI(vm) }
     }
