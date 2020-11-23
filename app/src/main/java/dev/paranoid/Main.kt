@@ -26,6 +26,7 @@ import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.viewModel
@@ -97,6 +98,7 @@ class TinderViewModel : ViewModel() {
                 Log.e("VM", "getChats")
                 emit(getChats(b))
                 if (cont == null) {
+                    emit(listOf())
                     break
                 }
                 delay(1000)
@@ -109,7 +111,6 @@ class TinderViewModel : ViewModel() {
     init {
         viewModelScope.launch(Dispatchers.IO + handler) {
             while (true) {
-                register("x")
                 val r = register("x")
                 if (r != null) {
                     id = r.id.toInt()
@@ -360,35 +361,35 @@ fun UI(vm: TinderViewModel) {
                                 modifier = Modifier.weight(1f).padding(10.dp),
                                 items = messages
                             ) {
-                                Column {
-                                    Card(
-                                        Modifier.align(
-                                            when (it.sender) {
-                                                vm.id.toString() -> Alignment.End
-                                                else -> Alignment.Start
-                                            }
-                                        )
-                                    ) {
+                                Row(
+                                    Modifier.padding(15.dp).fillMaxWidth(),
+                                    horizontalArrangement = when (it.sender) {
+                                        vm.id.toString() -> Arrangement.End
+                                        else -> Arrangement.Start
+                                    }
+                                ) {
+                                    Card() {
                                         Text(
                                             it.msg,
                                             Modifier.padding(10.dp)
                                         )
                                     }
-                                    Spacer(modifier = Modifier.height(10.dp))
                                 }
+                                Spacer(modifier = Modifier.height(10.dp))
                             }
+
                             Row(
                                 Modifier.fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                var input by remember { mutableStateOf("") }
+                                var input by remember { mutableStateOf(TextFieldValue("")) }
 
                                 TextField(
-                                    modifier = Modifier.weight(1f).height(20.dp),
+                                    modifier = Modifier.weight(1f).padding(5.dp),
                                     value = input,
                                     onValueChange = { input = it })
                                 Spacer(modifier = Modifier.width(10.dp))
-                                Button(onClick = { vm.talk(b, input) }) {
+                                Button(onClick = { vm.talk(b, input.text) }) {
                                     Text(text = "Send")
                                 }
                             }
