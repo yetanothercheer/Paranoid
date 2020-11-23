@@ -8,8 +8,50 @@ type Profile = {
 	likes: string[]
 }
 
-let Data: { [key: string]: Profile } = {}
-let global_id_count = 0;
+let Data: { [key: string]: Profile } = {
+    "0": {
+        id: "0",
+        name: "Alice",
+        about: "Message from Alice.",
+        avatars: [],
+        likes: []
+    },
+    "1": {
+        id: "1",
+        name: "Bob",
+        about: "Message from Bob.",
+        avatars: [],
+        likes: []
+    }
+}
+
+type Message = {
+    sender: string,
+    msg: string
+}
+
+let Chats: { [key: string]: Message[] } = {}
+
+let global_id_count = 2;
+
+export function talk(a: string, b: string, msg: string) {
+    let key = [parseInt(a), parseInt(b)].sort().join(",")
+    if (!Chats[key]) {
+        Chats[key] = []
+    }
+    Chats[key].push({
+        sender: a,
+        msg
+    })
+}
+
+export function getChats(a: string, b: string) {
+    let key = [parseInt(a), parseInt(b)].sort().join(",")
+    if (!Chats[key]) {
+        Chats[key] = []
+    }
+    return Chats[key]
+}
 
 export function register(_name: string) {
     let p: Profile = {

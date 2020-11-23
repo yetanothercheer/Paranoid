@@ -39,6 +39,9 @@ import com.github.kittinunf.fuel.gson.responseObject
 import com.github.kittinunf.result.getOrElse
 import com.github.kittinunf.result.getOrNull
 import kotlinx.coroutines.*
+import kotlin.coroutines.Continuation
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 val handler = CoroutineExceptionHandler { _, exception ->
     Log.e("Coroutine Exception", "${exception.message} on ${Thread.currentThread()}")
@@ -52,10 +55,13 @@ data class TinderProfile(
     var likes: List<String>
 )
 
+data class Message(var sender: String, var msg: String)
+
 class TinderViewModel : ViewModel() {
 
     val myProfile = liveData(handler) {
         while (true) {
+            Log.e("VM", "profile")
             if (id != -1) {
                 emit(getProfile(id))
             }
@@ -65,6 +71,7 @@ class TinderViewModel : ViewModel() {
 
     val matches = liveData(handler) {
         while (true) {
+            Log.e("VM", "matches")
             if (id != -1) {
                 emit((myProfile.value?.likes ?: listOf()).filter {
                     check(it.toInt())
@@ -75,7 +82,26 @@ class TinderViewModel : ViewModel() {
     }
 
     val allThePeople = liveData(handler) {
-        emit((1..10).map { getProfile(-1) }.filter { it.id.toInt() != id }.distinctBy { it.id })
+        emit((1..10).map {
+            Log.e("VM", "AllThePeople");
+            getProfile(-1)
+        }.filter { it.id.toInt() != id }.distinctBy { it.id })
+    }
+
+    var cont: Continuation<String>? = null
+
+    var messages = liveData(handler) {
+        while (true) {
+            val b = suspendCoroutine<String> { cont = it }
+            while (true) {
+                Log.e("VM", "getChats")
+                emit(getChats(b))
+                if (cont == null) {
+                    break
+                }
+                delay(1000)
+            }
+        }
     }
 
     var id: Int = -1
@@ -94,34 +120,36 @@ class TinderViewModel : ViewModel() {
         }
     }
 
-    private suspend fun register(name: String): TinderProfile? = withContext(Dispatchers.IO + handler) {
-        try {
-            val (_, _, result) = Fuel.post(
-                "https://paranoid.yetanothercheer.vercel.app/api",
-                listOf(Pair("f", "register"), Pair("name", name))
-            ).responseObject<TinderProfile>()
-            result.get()
-        } catch (e: Exception) {
-            Log.e("ViewModel", "Some Exception")
-            e.message?.let {
-                Log.e("ViewModel", it)
+    private suspend fun register(name: String): TinderProfile? =
+        withContext(Dispatchers.IO + handler) {
+            try {
+                val (_, _, result) = Fuel.post(
+                    "https://paranoid.yetanothercheer.vercel.app/api",
+                    listOf(Pair("f", "register"), Pair("name", name))
+                ).responseObject<TinderProfile>()
+                result.get()
+            } catch (e: Exception) {
+                Log.e("ViewModel", "Some Exception")
+                e.message?.let {
+                    Log.e("ViewModel", it)
+                }
+                null
             }
-            null
         }
-    }
 
-    private suspend fun getProfile(id: Int = -1): TinderProfile = withContext(Dispatchers.IO + handler) {
-        when (id) {
-            -1 -> Fuel.post(
-                "https://paranoid.yetanothercheer.vercel.app/api",
-                listOf(Pair("f", "get"))
-            ).responseObject<TinderProfile>().third.get()
-            else -> Fuel.post(
-                "https://paranoid.yetanothercheer.vercel.app/api",
-                listOf(Pair("f", "get"), Pair("id", id))
-            ).responseObject<TinderProfile>().third.get()
+    private suspend fun getProfile(id: Int = -1): TinderProfile =
+        withContext(Dispatchers.IO + handler) {
+            when (id) {
+                -1 -> Fuel.post(
+                    "https://paranoid.yetanothercheer.vercel.app/api",
+                    listOf(Pair("f", "get"))
+                ).responseObject<TinderProfile>().third.get()
+                else -> Fuel.post(
+                    "https://paranoid.yetanothercheer.vercel.app/api",
+                    listOf(Pair("f", "get"), Pair("id", id))
+                ).responseObject<TinderProfile>().third.get()
+            }
         }
-    }
 
     fun like(_id: Int) {
         viewModelScope.launch(Dispatchers.IO + handler) {
@@ -135,9 +163,32 @@ class TinderViewModel : ViewModel() {
                     "https://paranoid.yetanothercheer.vercel.app/api",
                     listOf(Pair("f", "like"), Pair("a", _id), Pair("b", id))
                 ).response().third.getOrElse { }
-
             }
         }
+    }
+
+    fun talk(b: String, message: String) {
+        viewModelScope.launch(Dispatchers.IO + handler) {
+            Fuel.post(
+                "https://paranoid.yetanothercheer.vercel.app/api",
+                listOf(Pair("f", "talk"), Pair("a", id), Pair("b", b), Pair("message", message))
+            ).response().third.getOrElse { }
+        }
+    }
+
+    fun getChatsWith(b: String) {
+        cont?.resume(b)
+    }
+
+    fun exitChats() {
+        cont = null
+    }
+
+    private suspend fun getChats(b: String) = withContext(Dispatchers.IO + handler) {
+        Fuel.post(
+            "https://paranoid.yetanothercheer.vercel.app/api",
+            listOf(Pair("f", "getChats"), Pair("a", id), Pair("b", b.toInt()))
+        ).responseObject<List<Message>>().third.get()
     }
 
     private suspend fun check(_id: Int): Boolean = withContext(Dispatchers.IO + handler) {
@@ -220,6 +271,7 @@ fun UI(vm: TinderViewModel) {
         val myProfile by vm.myProfile.observeAsState(TinderProfile("", "", "", listOf(), listOf()))
         val allThePeople by vm.allThePeople.observeAsState(listOf())
         val matches by vm.matches.observeAsState(listOf())
+        val messages by vm.messages.observeAsState(listOf())
 
         Column {
             TabRow(
@@ -244,31 +296,34 @@ fun UI(vm: TinderViewModel) {
 
             var index by remember { mutableStateOf(0) }
 
+            var chatting by remember { mutableStateOf(-1) }
+
             when (state) {
                 0 -> when (allThePeople.size) {
                     0 -> Text(
                         modifier = Modifier.fillMaxSize().wrapContentSize(Alignment.Center),
                         text = "Loading..."
                     )
-                    else -> Column {
-                        Box(modifier = Modifier.weight(1f).fillMaxWidth().padding(7.dp)) {
-                            when (allThePeople.size) {
-                                0 -> Text(
-                                    modifier = Modifier.fillMaxSize()
-                                        .wrapContentSize(Alignment.Center), text = "Loading..."
-                                )
-                                else -> ProfileCard(allThePeople[index])
+                    else -> when (index < allThePeople.size) {
+                        true ->
+                            Column {
+                                Box(modifier = Modifier.weight(1f).fillMaxWidth().padding(7.dp)) {
+                                    ProfileCard(allThePeople[index])
+                                }
+                                Row(
+                                    Modifier.padding(15.dp).fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.Center
+                                ) {
+                                    MyButton(R.drawable.notlike) { index++ }
+                                    Spacer(modifier = Modifier.width(50.dp))
+                                    MyButton(R.drawable.like) { vm.like(allThePeople[index].id.toInt()); index++ }
+                                }
                             }
-                        }
-
-                        Row(
-                            Modifier.padding(15.dp).fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Center
-                        ) {
-                            MyButton(R.drawable.notlike) { index++; index %= allThePeople.size }
-                            Spacer(modifier = Modifier.width(50.dp))
-                            MyButton(R.drawable.like) { vm.like(allThePeople[index].id.toInt()); index++; index %= allThePeople.size }
-                        }
+                        else -> Text(
+                            modifier = Modifier.fillMaxSize()
+                                .wrapContentSize(Alignment.Center),
+                            text = "There's no one left."
+                        )
                     }
                 }
 
@@ -278,12 +333,65 @@ fun UI(vm: TinderViewModel) {
                     text = "Not Implemented"
                 )
                 2 -> Column(Modifier.padding(10.dp)) {
-                    LazyColumnFor(items = matches) {
-                        Column {
-                            Card(Modifier.fillMaxWidth()) {
-                                Text("${it.name} with ID: ${it.id}", Modifier.padding(20.dp))
+                    var b by remember { mutableStateOf("") }
+
+                    when (chatting) {
+                        -1 ->
+                            LazyColumnFor(items = matches) {
+                                Column {
+                                    Card(Modifier.fillMaxWidth().clickable(onClick = {
+                                        chatting = it.id.toInt()
+                                        b = it.id
+                                        vm.getChatsWith(it.id)
+                                    })) {
+                                        Text(
+                                            "${it.name} with ID: ${it.id}",
+                                            Modifier.padding(20.dp)
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.height(10.dp))
+                                }
                             }
-                            Spacer(modifier = Modifier.height(10.dp))
+                        else -> Column {
+                            Button(onClick = { vm.exitChats(); chatting = -1 }) {
+                                Text(text = "Exit")
+                            }
+                            LazyColumnFor(
+                                modifier = Modifier.weight(1f).padding(10.dp),
+                                items = messages
+                            ) {
+                                Column {
+                                    Card(
+                                        Modifier.align(
+                                            when (it.sender) {
+                                                vm.id.toString() -> Alignment.End
+                                                else -> Alignment.Start
+                                            }
+                                        )
+                                    ) {
+                                        Text(
+                                            it.msg,
+                                            Modifier.padding(10.dp)
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.height(10.dp))
+                                }
+                            }
+                            Row(
+                                Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                var input by remember { mutableStateOf("") }
+
+                                TextField(
+                                    modifier = Modifier.weight(1f).height(20.dp),
+                                    value = input,
+                                    onValueChange = { input = it })
+                                Spacer(modifier = Modifier.width(10.dp))
+                                Button(onClick = { vm.talk(b, input) }) {
+                                    Text(text = "Send")
+                                }
+                            }
                         }
                     }
                 }

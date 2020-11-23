@@ -39,6 +39,11 @@ export default (request: NowRequest, response: NowResponse) => {
 			} else {
 				reply(tinder.getProfile())
 			}
+		} else if (data.f === "talk") {
+			tinder.talk(data.a, data.b, data.message)
+			reply("talk")
+		} else if (data.f === "getChats") {
+			reply(tinder.getChats(data.a, data.b))
 		}
 		return
 	}
