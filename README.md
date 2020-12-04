@@ -15,3 +15,7 @@ Yet another Tinder.
 + SOLID Principle
 + Dependency Injection
 + Repository Pattern with Room
+
+## Also
++ https://github.com/skydoves/Pokedex
++ https://github.com/TakuSemba/JetHub
