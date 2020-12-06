@@ -14,13 +14,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RadialGradient
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.paranoid.data.TinderProfile
+import dev.paranoid.theme.AppTheme
 
 @Composable
 fun ProfileCard(profile: TinderProfile) {
-    Box() {
+    Box {
         Card(
             Modifier.fillMaxSize().clickable(onClick = {
 
@@ -59,9 +61,17 @@ fun ProfileCard(profile: TinderProfile) {
 fun MyButton(id: Int, onClick: () -> Unit) {
     Card(elevation = 4.dp, shape = RoundedCornerShape(50)) {
         Image(
-            asset = imageResource(id),
+            imageResource(id),
             modifier = Modifier.preferredSize(50.dp, 50.dp)
                 .clickable(onClick = onClick)
         )
+    }
+}
+
+@Preview
+@Composable
+fun ProfilePreview() {
+    AppTheme() {
+        ProfileCard(profile = TinderProfile("0", "Cheer", "About...", listOf(), listOf()))
     }
 }

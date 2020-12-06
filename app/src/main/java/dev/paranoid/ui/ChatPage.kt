@@ -17,8 +17,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.ui.tooling.preview.Preview
 import dev.paranoid.R
 import dev.paranoid.data.Message
 import dev.paranoid.data.myself
@@ -48,7 +48,7 @@ fun ChatPage(
                 }
             }, actions = {
                 Icon(
-                    asset = Icons.Outlined.Info,
+                    Icons.Outlined.Info,
                     modifier = Modifier.clickable(onClick = {})
                         .padding(horizontal = 12.dp, vertical = 16.dp).preferredHeight(24.dp)
                 )
@@ -74,8 +74,8 @@ fun ChatAppBar(
             contentColor = MaterialTheme.colors.onSurface,
             navigationIcon = {
                 Icon(
-                    asset = vectorResource(R.drawable.ic_back),
-                    modifier = Modifier.clickable(onClick = onNavIconPressed).preferredHeight(24.dp)
+                    vectorResource(R.drawable.ic_back),
+                    modifier = Modifier.fillMaxHeight().clickable(onClick = onNavIconPressed).padding(horizontal = 6.dp, vertical = 12.dp)
                 )
             },
             actions = actions

@@ -5,9 +5,7 @@ import android.util.Log
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.ui.platform.setContent
-import dev.paranoid.data.TinderViewModel
 import dev.paranoid.theme.AppTheme
-import dev.paranoid.ui.App
 import kotlinx.coroutines.CoroutineExceptionHandler
 
 val handler = CoroutineExceptionHandler { _, exception ->
@@ -17,11 +15,12 @@ val handler = CoroutineExceptionHandler { _, exception ->
 class Main : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val vm: TinderViewModel by viewModels()
+
+        val viewModel: AppViewModel by viewModels()
 
         setContent {
             AppTheme {
-                App(vm)
+                MyApp()
             }
         }
     }

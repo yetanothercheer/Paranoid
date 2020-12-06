@@ -43,6 +43,8 @@ android {
 }
 
 dependencies {
+
+
     implementation fileTree(dir: "libs", include: ["*.jar"])
     // Kotlin
     implementation deps.kotlinStdLib
@@ -54,6 +56,9 @@ dependencies {
     implementation deps.support.ktxLiveData
     implementation deps.support.lifecycleExtensions
     implementation deps.support.activity
+    implementation deps.support.room
+    implementation deps.support.roomCompiler
+    implementation deps.support.roomKtx
 
     // CardView
     implementation deps.cardView
@@ -73,6 +78,10 @@ dependencies {
     implementation deps.compose.material
     implementation deps.compose.savedInstanceState
     implementation deps.compose.uiLiveData
+
+    // koin
+    implementation "org.koin:koin-core:2.1.0"
+
     androidTestImplementation deps.compose.uiTest
 
     // Image loading
@@ -84,6 +93,10 @@ dependencies {
     implementation deps.fuel.android
     implementation deps.fuel.coroutine
     implementation deps.fuel.gson
+
+    // Retrofit
+    implementation deps.retrofit.core
+    implementation deps.retrofit.gson
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
