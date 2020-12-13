@@ -17,11 +17,10 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import dev.paranoid.data.TinderProfile
-import dev.paranoid.theme.AppTheme
+import dev.paranoid.data.repository.Profile
 
 @Composable
-fun ProfileCard(profile: TinderProfile) {
+fun ProfileCard(profile: Profile) {
     Box {
         Card(
             Modifier.fillMaxSize().clickable(onClick = {
@@ -71,7 +70,4 @@ fun MyButton(id: Int, onClick: () -> Unit) {
 @Preview
 @Composable
 fun ProfilePreview() {
-    AppTheme() {
-        ProfileCard(profile = TinderProfile("0", "Cheer", "About...", listOf(), listOf()))
-    }
 }

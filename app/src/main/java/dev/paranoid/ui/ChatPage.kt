@@ -20,8 +20,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import dev.paranoid.R
-import dev.paranoid.data.Message
-import dev.paranoid.data.myself
+import dev.paranoid.data.repository.Message
 import dev.paranoid.theme.AppTheme
 
 @Composable
@@ -75,7 +74,8 @@ fun ChatAppBar(
             navigationIcon = {
                 Icon(
                     vectorResource(R.drawable.ic_back),
-                    modifier = Modifier.fillMaxHeight().clickable(onClick = onNavIconPressed).padding(horizontal = 6.dp, vertical = 12.dp)
+                    modifier = Modifier.fillMaxHeight().clickable(onClick = onNavIconPressed)
+                        .padding(horizontal = 6.dp, vertical = 12.dp)
                 )
             },
             actions = actions
@@ -99,10 +99,10 @@ fun Messages(
             Spacer(modifier = Modifier.preferredHeight(64.dp))
             messages.forEach {
                 Row(Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
-                    if (it.sender == myself) {
+                    if (it.from == "myself") {
                         Spacer(modifier = Modifier.weight(1f))
                     }
-                    Text(it.msg)
+                    Text(it.body)
                 }
             }
         }

@@ -8,13 +8,11 @@ Yet another Tinder.
 + Compose
 + ViewModel
 + LiveData
++ Coroutine
++ Flow
 + Room
 + Retrofit
-+ Coroutine
 + Koin
-
-## Todo List
-+ SOLID Principle
 
 ## Also
 + https://github.com/skydoves/Pokedex

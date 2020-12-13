@@ -8,59 +8,36 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import dev.paranoid.theme.AppTheme
+import dev.paranoid.data.repository.ChatCompact
+import dev.paranoid.viewmodel.ChatViewModel
 
 data class CompactProfile(val name: String, val recentMessage: String)
 
 typealias CompactProfileList = List<CompactProfile>
 
 @Composable
-fun ChatList(profiles: CompactProfileList = listOf(
-    CompactProfile("Bob", "bye"),
-    CompactProfile("Bob", "bye"),
-    CompactProfile("Bob", "bye"),
-    CompactProfile("Bob", "bye"),
-    CompactProfile("Bob", "bye"),
-    CompactProfile("Bob", "bye"),
-    CompactProfile("Bob", "bye"),
-    CompactProfile("Bob", "bye"),
-    CompactProfile("Bob", "bye"),
-    CompactProfile("Bob", "bye"),
-    CompactProfile("Bob", "bye"),
-    CompactProfile("Bob", "bye"),
-    CompactProfile("Bob", "bye"),
-    CompactProfile("Bob", "bye"),
-    CompactProfile("Bob", "bye"),
-    CompactProfile("Bob", "bye"),
-    CompactProfile("Bob", "bye"),
-    CompactProfile("Bob", "bye"),
-    CompactProfile("Bob", "bye"),
-    CompactProfile("Bob", "bye"),
-    CompactProfile("Bob", "bye"),
-    CompactProfile("Bob", "bye"),
-    CompactProfile("Bob", "bye"),
-    CompactProfile("Bob", "bye"),
-    CompactProfile("Bob", "bye"),
-    CompactProfile("Bob", "bye"),
-    CompactProfile("Bob", "bye"),
-    CompactProfile("Bob", "bye"),
-    CompactProfile("Bob", "bye"),
-    CompactProfile("Bob", "bye"),
-    CompactProfile("Bob", "bye"),
-), onClick: (CompactProfile) -> Unit = {}) {
+fun ChatList(chatViewModel: ChatViewModel, onClick: (ChatCompact) -> Unit = {}) {
+
+    val chatList = chatViewModel.chatList.observeAsState()
+
     Surface {
-        LazyColumnFor(items = profiles, Modifier.fillMaxSize()) {
-            Row(Modifier.clickable(onClick = { onClick(it) })) {
-                Box(Modifier.width(64.dp).height(64.dp))
-                Column {
-                    Text(text = it.name, style = MaterialTheme.typography.h2)
-                    Text(text = it.recentMessage, style = MaterialTheme.typography.body1)
-                    Spacer(Modifier.preferredHeight(32.dp))
-                    Divider(Modifier.fillMaxWidth().preferredHeight(1.dp),
-                        color = MaterialTheme.colors.onSurface.copy(0.3f))
+        chatList.value?.let {
+            LazyColumnFor(items = it, Modifier.fillMaxSize()) {
+                Row(Modifier.clickable(onClick = { onClick(it) })) {
+                    Box(Modifier.width(64.dp).height(64.dp))
+                    Column {
+                        Text(text = it.with, style = MaterialTheme.typography.h2)
+                        Text(text = it.lastMessage, style = MaterialTheme.typography.body1)
+                        Spacer(Modifier.preferredHeight(32.dp))
+                        Divider(
+                            Modifier.fillMaxWidth().preferredHeight(1.dp),
+                            color = MaterialTheme.colors.onSurface.copy(0.3f)
+                        )
+                    }
                 }
             }
         }
@@ -70,23 +47,4 @@ fun ChatList(profiles: CompactProfileList = listOf(
 @Preview(widthDp = 480)
 @Composable
 fun ChatListPreview() {
-    AppTheme {
-        ChatList(
-            listOf(
-                CompactProfile("Alice", "hi"),
-                CompactProfile("Bob", "bye"),
-                CompactProfile("Bob", "bye"),
-                CompactProfile("Bob", "bye"),
-                CompactProfile("Bob", "bye"),
-                CompactProfile("Bob", "bye"),
-                CompactProfile("Bob", "bye"),
-                CompactProfile("Bob", "bye"),
-                CompactProfile("Bob", "bye"),
-                CompactProfile("Bob", "bye"),
-                CompactProfile("Bob", "bye"),
-                CompactProfile("Bob", "bye"),
-                CompactProfile("Bob", "bye"),
-            )
-        )
-    }
 }

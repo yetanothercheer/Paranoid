@@ -80,7 +80,9 @@ dependencies {
     implementation deps.compose.uiLiveData
 
     // koin
-    implementation "org.koin:koin-core:2.1.0"
+    implementation "org.koin:koin-android:2.2.1"
+    implementation "org.koin:koin-android-scope:2.2.1"
+    implementation "org.koin:koin-android-viewmodel:2.2.1"
 
     androidTestImplementation deps.compose.uiTest
 
