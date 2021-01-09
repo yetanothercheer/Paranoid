@@ -19,6 +19,7 @@ val images = listOf(R.drawable.ic_a, R.drawable.ic_b, R.drawable.ic_c, R.drawabl
 fun App(chatViewModel: ChatViewModel, profileViewModel: ProfileViewModel) {
 
     var page by remember { mutableStateOf(Page.MAIN) }
+    var tab by remember { mutableStateOf(0) }
 
     val chat by chatViewModel.current.observeAsState(Chat("", "", listOf()))
 
@@ -26,6 +27,8 @@ fun App(chatViewModel: ChatViewModel, profileViewModel: ProfileViewModel) {
         Page.MAIN ->
             TabPage(
                 tabCount = 4,
+                currentTabIndex = tab,
+                onCurrentTabIndexChanged = { tab = it },
                 tabTemplate = { TabIcon(images[it]) },
                 viewTemplate = {
                     when (it) {

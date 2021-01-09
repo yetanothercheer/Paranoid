@@ -30,7 +30,7 @@ fun ChatList(chatViewModel: ChatViewModel, onClick: (ChatCompact) -> Unit = {}) 
                 Row(Modifier.clickable(onClick = { onClick(it) })) {
                     Box(Modifier.width(64.dp).height(64.dp))
                     Column {
-                        Text(text = it.with, style = MaterialTheme.typography.h2)
+                        Text(text = it.with, style = MaterialTheme.typography.h5)
                         Text(text = it.lastMessage, style = MaterialTheme.typography.body1)
                         Spacer(Modifier.preferredHeight(32.dp))
                         Divider(

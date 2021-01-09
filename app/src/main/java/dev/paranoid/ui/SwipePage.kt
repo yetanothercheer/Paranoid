@@ -26,10 +26,19 @@ fun SwipePage(
             when (current < profiles.size) {
                 true ->
                     Column {
-                        Box(
-                            modifier = Modifier.weight(1f).fillMaxWidth().padding(7.dp)
-                        ) {
-                            ProfileCard(profiles[current])
+                        Box(Modifier.weight(1f).fillMaxSize()) {
+                            Box(
+                                    modifier = Modifier.fillMaxWidth().padding(7.dp)
+                            ) {
+                                ProfileCard(profiles[current], onDisappear = { current++ })
+                            }
+                            if (current < profiles.size - 1) {
+                                Box(
+                                        modifier = Modifier.fillMaxWidth().padding(7.dp)
+                                ) {
+                                    ProfileCard(profiles[current + 1], onDisappear = { current++ })
+                                }
+                            }
                         }
                         Row(
                             Modifier.padding(15.dp).fillMaxWidth(),

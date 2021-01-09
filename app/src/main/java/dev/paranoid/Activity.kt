@@ -14,11 +14,18 @@ val handler = CoroutineExceptionHandler { _, exception ->
 }
 
 class MainActivity : AppCompatActivity() {
+    companion object {
+        // DPI Density
+        // TODO: Find a better way to use Context in composable
+        var density = 0f
+    }
+
     private val chatViewModel: ChatViewModel by viewModel()
     private val profileViewModel: ProfileViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        density = resources.displayMetrics.density
         setContent { Compose(chatViewModel, profileViewModel) }
     }
 }

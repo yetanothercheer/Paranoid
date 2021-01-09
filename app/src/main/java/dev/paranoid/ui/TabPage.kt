@@ -25,25 +25,26 @@ fun TabIcon(id: Int) {
 @Composable
 fun TabPage(
     tabCount: Int,
+    currentTabIndex: Int,
+    onCurrentTabIndexChanged: (Int) -> Unit,
     tabTemplate: @Composable (Int) -> Unit,
     viewTemplate: @Composable (Int) -> Unit
 ) {
-    var tabIndex by remember { mutableStateOf(0) }
     Column(Modifier.fillMaxSize()) {
         TabRow(
             modifier = Modifier.preferredHeight(60.dp).background(Color.White),
-            selectedTabIndex = tabIndex,
+            selectedTabIndex = currentTabIndex,
         ) {
             (0 until tabCount).forEach {
                 Tab(
                     modifier = Modifier.background(Color.White),
-                    selected = tabIndex == it,
-                    onClick = { tabIndex = it }) {
+                    selected = currentTabIndex == it,
+                    onClick = { onCurrentTabIndexChanged(it) }) {
                     tabTemplate(it)
                 }
             }
         }
 
-        viewTemplate(tabIndex)
+        viewTemplate(currentTabIndex)
     }
 }

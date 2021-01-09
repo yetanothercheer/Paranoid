@@ -14,6 +14,7 @@ import androidx.compose.material.icons.outlined.Info
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
@@ -75,7 +76,7 @@ fun ChatAppBar(
                 Icon(
                     vectorResource(R.drawable.ic_back),
                     modifier = Modifier.fillMaxHeight().clickable(onClick = onNavIconPressed)
-                        .padding(horizontal = 6.dp, vertical = 12.dp)
+                        .padding(horizontal = 6.dp, vertical = 12.dp).scale(0.6f)
                 )
             },
             actions = actions
