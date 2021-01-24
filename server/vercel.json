@@ -1,8 +1,0 @@
-{
-  "routes": [
-    {
-      "src": "/api/sample/(?<id>[^/]+)",
-      "dest": "/api/sample"
-    }
-  ]
-}
