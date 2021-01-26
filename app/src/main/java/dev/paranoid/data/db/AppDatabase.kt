@@ -4,23 +4,34 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 
-@Database(entities = [User::class], version = 1, exportSchema = false)
-abstract class UserDatabase : RoomDatabase() {
-    abstract val userDatabaseDao: UserDatabaseDao
+@Database(
+    version = 1, exportSchema = false,
+    entities = [
+        User::class,
+        ChatRoom::class
+    ]
+)
+@TypeConverters(
+    Converters::class
+)
+abstract class AppDatabase : RoomDatabase() {
+    abstract val userDao: UserDao
+    abstract val chatDao: ChatRoomDao
 
     companion object {
         @Volatile
-        private var INSTANCE: UserDatabase? = null
+        private var INSTANCE: AppDatabase? = null
 
-        fun getInstance(context: Context): UserDatabase {
+        fun getInstance(context: Context): AppDatabase {
             synchronized(this) {
                 var instance = INSTANCE
                 if (instance == null) {
                     instance = Room.databaseBuilder(
                         context.applicationContext,
-                        UserDatabase::class.java,
-                        "user_database"
+                        AppDatabase::class.java,
+                        "app.db"
                     )
                         .fallbackToDestructiveMigration()
                         .build()

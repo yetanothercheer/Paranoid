@@ -14,7 +14,7 @@ data class User(
 )
 
 @Dao
-interface UserDatabaseDao {
+interface UserDao {
 
     @Insert
     suspend fun insert(user: User)

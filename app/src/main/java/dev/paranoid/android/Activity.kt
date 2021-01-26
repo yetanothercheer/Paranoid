@@ -5,8 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.ui.platform.setContent
 import dev.paranoid.App
 import dev.paranoid.data.SeriousRepository
-import dev.paranoid.data.db.ChatRoomDatabase
-import dev.paranoid.data.db.UserDatabase
+import dev.paranoid.data.db.AppDatabase
 import dev.paranoid.data.repository.ChatRepository
 import dev.paranoid.data.repository.UserRepository
 import org.koin.android.ext.koin.androidContext
@@ -26,10 +25,12 @@ class MainActivity : AppCompatActivity() {
             // _modules_ is a must
             modules(
                 module {
+                    val db = AppDatabase.getInstance(this@MainActivity)
+
                     single<SeriousRepository> {
                         SeriousRepository(
-                            UserDatabase.getInstance(this@MainActivity),
-                            ChatRoomDatabase.getInstance(this@MainActivity),
+                            db.userDao,
+                            db.chatDao,
                             this@MainActivity
                         )
                     } binds arrayOf(ChatRepository::class, UserRepository::class)

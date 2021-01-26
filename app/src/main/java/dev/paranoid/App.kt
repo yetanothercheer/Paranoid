@@ -1,5 +1,6 @@
 package dev.paranoid
 
+import android.util.Log
 import android.view.View
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -58,6 +59,7 @@ class App(val toast: (String) -> Unit = {}) : KoinComponent {
 
         // Preventing collect flow everytime
         val usersGlobal = userRepo.getRecommends()
+        val users by usersGlobal.collectAsState(initial = listOf())
 
         AppTheme(dark) {
 
@@ -112,7 +114,7 @@ class App(val toast: (String) -> Unit = {}) : KoinComponent {
                             0 -> {
                                 Column(Modifier.fillMaxSize()) {
 
-                                    val users by usersGlobal.collectAsState(initial = listOf())
+
                                     var swpieIndex by remember { mutableStateOf(0) }
 
                                     // TODO: Replace this brittle variable
@@ -218,7 +220,7 @@ class App(val toast: (String) -> Unit = {}) : KoinComponent {
                                     Spacer(modifier = Modifier.height(10.dp))
 
 //                                    val users by userRepo.getChats().collectAsState(initial = listOf())
-                                    val users by usersGlobal.collectAsState(initial = listOf())
+//                                    val users by usersGlobal.collectAsState(initial = listOf())
 
                                     LazyColumnFor(
                                         items = users,

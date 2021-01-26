@@ -38,32 +38,3 @@ interface ChatRoomDao {
     @Query("DELETE from chatroom_table")
     suspend fun clear()
 }
-
-
-@Database(entities = [ChatRoom::class], version = 1, exportSchema = false)
-@TypeConverters(Converters::class)
-abstract class ChatRoomDatabase : RoomDatabase() {
-    abstract val dao: ChatRoomDao
-
-    companion object {
-        @Volatile
-        private var INSTANCE: ChatRoomDatabase? = null
-
-        fun getInstance(context: Context): ChatRoomDatabase {
-            synchronized(this) {
-                var instance = INSTANCE
-                if (instance == null) {
-                    instance = Room.databaseBuilder(
-                        context.applicationContext,
-                        ChatRoomDatabase::class.java,
-                        "chatroom_database"
-                    )
-                        .fallbackToDestructiveMigration()
-                        .build()
-                    INSTANCE = instance
-                }
-                return instance
-            }
-        }
-    }
-}

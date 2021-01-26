@@ -6,10 +6,9 @@ import android.content.SharedPreferences
 import android.util.Log
 import com.google.gson.Gson
 import dev.paranoid.data.api.UserService
-import dev.paranoid.data.db.ChatRoom
-import dev.paranoid.data.db.ChatRoomDatabase
-import dev.paranoid.data.db.UserDatabase
+import dev.paranoid.data.db.*
 import dev.paranoid.data.repository.*
+import dev.paranoid.data.repository.User
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
@@ -23,7 +22,7 @@ fun computeRoomID(a: String, b: String) =
         "${b.hashCode()}.${a.hashCode()}"
     }
 
-class SeriousRepository(val db: UserDatabase, val chat: ChatRoomDatabase, val context: Context) : ChatRepository,
+class SeriousRepository(val db: UserDao, val chat: ChatRoomDao, val context: Context) : ChatRepository,
     UserRepository {
     val api = UserService()
     var myself: User? = null
@@ -37,24 +36,24 @@ class SeriousRepository(val db: UserDatabase, val chat: ChatRoomDatabase, val co
     override fun getChatsWith(b: ID): Flow<List<Chat>> = flow {
         val room_id = computeRoomID(myself!!.id, b)
 
-        chat.dao.get(room_id).take(1).collect {
+        chat.get(room_id).take(1).collect {
             if (it != null) {
                 emit(it.messages.toList())
                 println(it)
             } else {
-                chat.dao.insert(ChatRoom(room_id, arrayOf()))
+                chat.insert(ChatRoom(room_id, arrayOf()))
                 emit(listOf<Chat>())
             }
         }
 
-        chat.dao.update(
+        chat.update(
             ChatRoom(
                 room_id,
                 api.getChats(room_id).get()
             )
         )
 
-        chat.dao.get(room_id).collect {
+        chat.get(room_id).collect {
             println("New Message")
             emit(it!!.messages.toList())
         }
@@ -62,9 +61,9 @@ class SeriousRepository(val db: UserDatabase, val chat: ChatRoomDatabase, val co
 
     override fun chat(to: ID, body: String) = flow {
         val room_id = computeRoomID(myself!!.id, to)
-        chat.dao.get(room_id).take(1).collect {
+        chat.get(room_id).take(1).collect {
             it!!.messages = it.messages.plus(Chat(body, myself!!.id))
-            chat.dao.update(it!!)
+            chat.update(it!!)
             println("Update $room_id")
         }
 
@@ -72,7 +71,7 @@ class SeriousRepository(val db: UserDatabase, val chat: ChatRoomDatabase, val co
     }
 
     override fun getRecommends(): Flow<List<User>> = flow {
-        db.userDatabaseDao.getAllUser().take(1).collect {
+        db.getAllUser().take(1).collect {
             emit(it.map { User(it.id, it.name) })
         }
 
@@ -83,14 +82,14 @@ class SeriousRepository(val db: UserDatabase, val chat: ChatRoomDatabase, val co
         val users = api.getUsers().get()
 
         users.map {
-            if (db.userDatabaseDao.get(it.id) == null) {
-                db.userDatabaseDao.insert(dev.paranoid.data.db.User(id = it.id, name = it.name))
+            if (db.get(it.id) == null) {
+                db.insert(dev.paranoid.data.db.User(id = it.id, name = it.name))
             } else {
-                db.userDatabaseDao.update(dev.paranoid.data.db.User(id = it.id, name = it.name))
+                db.update(dev.paranoid.data.db.User(id = it.id, name = it.name))
             }
         }
 
-        db.userDatabaseDao.getAllUser().take(1).collect {
+        db.getAllUser().take(1).collect {
             emit(it.map { User(it.id, it.name) })
         }
     }
