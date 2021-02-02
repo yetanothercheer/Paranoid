@@ -1,9 +1,13 @@
 <resources>
 
     <style name="AppTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
-        <!-- Cold start -->
         <item name="colorPrimaryDark">@android:color/black</item>
-        <item name="android:windowBackground">@android:color/black</item>
+        <!-- Cold start image -->
+        <item name="android:windowBackground">@drawable/opening</item>
+
+        <!-- Fix inconsistent center between splash and compose by ignoring status/navigation bar -->
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
     </style>
 
 </resources>

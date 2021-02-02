@@ -13,6 +13,10 @@ data class User(
 
 interface UserRepository {
 
+    fun getIdentify(): User?
+
+    fun register(name: String = ""): Flow<Boolean>
+
     fun getRecommends(): Flow<List<User>>
 
     fun getMatches(): Flow<List<User>>

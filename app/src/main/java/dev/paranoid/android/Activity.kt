@@ -2,9 +2,12 @@ package dev.paranoid.android
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.ui.platform.WindowManager
 import androidx.compose.ui.platform.setContent
 import dev.paranoid.App
+import dev.paranoid.R
 import dev.paranoid.data.SeriousRepository
+import dev.paranoid.data.SimpleRepository
 import dev.paranoid.data.db.AppDatabase
 import dev.paranoid.data.repository.ChatRepository
 import dev.paranoid.data.repository.UserRepository
@@ -27,7 +30,7 @@ class MainActivity : AppCompatActivity() {
                 module {
                     val db = AppDatabase.getInstance(this@MainActivity)
 
-                    single<SeriousRepository> {
+                    single {
                         SeriousRepository(
                             db.userDao,
                             db.chatDao,

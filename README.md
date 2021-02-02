@@ -2,6 +2,8 @@
 
 Yet another Tinder.
 
+![](capture.gif)
+
 ## Used
 + Compose
 + Flow

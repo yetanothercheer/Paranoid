@@ -15,7 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import kotlin.random.Random
 
-fun String.toColor() = Color(0xff000000 + Random(hashCode()).nextLong(0xffffff))
+fun String.toColor() = Color(0xff000000 + Random(hashCode()).nextLong(0xaaaaaa))
 
 @Composable
 fun Profile(name: String, modifier: Modifier = Modifier, onDisappear: (Boolean) -> Unit = {}, doDisappear: Int = 0) {
@@ -31,7 +31,7 @@ fun Profile(name: String, modifier: Modifier = Modifier, onDisappear: (Boolean) 
                     .padding(20.dp)
             ) {
                 Spacer(Modifier.weight(1f))
-                Text(name, style = MaterialTheme.typography.h2.copy(color = Color.White))
+                Text(name, style = MaterialTheme.typography.h5.copy(color = Color.White))
             }
         }
     }

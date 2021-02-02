@@ -70,6 +70,7 @@ fun UserInput(onSend: (String) -> Unit) {
                 shape = RoundedCornerShape(50),
                 onClick = {
                     onSend(textState.text)
+                    textState = TextFieldValue()
                 }) {
                 Text(text = "Send", modifier = Modifier.padding(horizontal = 16.dp))
             }

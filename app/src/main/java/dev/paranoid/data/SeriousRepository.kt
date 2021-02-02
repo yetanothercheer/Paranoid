@@ -10,10 +10,7 @@ import dev.paranoid.data.db.*
 import dev.paranoid.data.repository.*
 import dev.paranoid.data.repository.User
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.*
 
 fun computeRoomID(a: String, b: String) =
     if (a.hashCode() < b.hashCode()) {
@@ -68,6 +65,14 @@ class SeriousRepository(val db: UserDao, val chat: ChatRoomDao, val context: Con
         }
 
         emit(api.chat(computeRoomID(myself!!.id, to), myself!!.id, body).get())
+    }
+
+    override fun getIdentify(): User? {
+        TODO("Not yet implemented")
+    }
+
+    override fun register(name: String): Flow<Boolean> {
+        TODO("Not yet implemented")
     }
 
     override fun getRecommends(): Flow<List<User>> = flow {
